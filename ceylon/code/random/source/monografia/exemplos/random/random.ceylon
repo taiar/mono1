@@ -8,7 +8,7 @@ shared Integer getRandomInteger(Integer a, Integer b, Random r) {
     return (fraction + a).integer; // cast from Float to Integer
 }
 
-shared void run() {
+shared void runner() {
     Random random = Random();
     for(number in 1..100) { // here we use a Sequence, more on that later
         print(getRandomInteger(1, 100, random));
