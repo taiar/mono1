@@ -1,16 +1,16 @@
 
 class Consumer extends Thread {
 
-   private CubbyHole cubbyhole;
+   private Storage cubbyhole;
    private int number;
 
-   public Consumer(CubbyHole c, int number) {
+   public Consumer(Storage c, int number) {
       cubbyhole = c;
       this.number = number;
    }
 
    private void consume() {
-      if(Math.random()  < 0.2) {
+      if(Math.random()  < 0.5) {
          System.out.println("[Consumer " + this.number + "] Feed me! I have to consume!");
          cubbyhole.get();
       } else {
@@ -22,7 +22,7 @@ class Consumer extends Thread {
       while(true) {
          this.consume();
          try {
-           sleep((int)(Math.random() * 1000));
+           sleep(ProducerConsumerTest.randInt(1, 5) * 1000);
          }
          catch (InterruptedException e) { }
       }

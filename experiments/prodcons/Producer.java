@@ -2,24 +2,18 @@ import java.util.Random;
 
 class Producer extends Thread {
 
-  private CubbyHole cubbyhole;
+  private Storage storage;
   private int number;
-  private static Random random = new Random();
 
-  public static int randInt(int min, int max) {
-      int randomNum = random.nextInt((max - min) + 1) + min;
-      return randomNum;
-  }
-
-  public Producer(CubbyHole c, int number) {
-    cubbyhole = c;
+  public Producer(Storage c, int number) {
+    storage = c;
     this.number = number;
   }
 
   private void produce() {
-    if(Math.random() < 8) {
+    if(Math.random() < 0.5) {
       System.out.println("[Producer " + this.number + "] Hey! I've produced!");
-      cubbyhole.add();
+      storage.add();
     } else {
       System.out.println("[Producer " + this.number + "] I produced nothing... Sorry!");
     }
@@ -29,7 +23,7 @@ class Producer extends Thread {
     while (true) {
       this.produce();
       try {
-        sleep(Producer.randInt(1, 5) * 100);
+        sleep(ProducerConsumerTest.randInt(1, 5) * 1000);
       }
       catch (InterruptedException e) { }
     }
