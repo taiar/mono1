@@ -12,18 +12,13 @@ shared Integer getRandomInteger(Integer a, Integer b) {
 	return (fraction + a).integer;
 }
 
-"Run the module `prod_cons`."
 shared void run() {
     
 	value storage = Storage(10);
     
-    storage.printMe();
-    
-    for(i in 0..20) {
-        storage.add();
-    }
-    
-    for(i in 0..20) {
-        storage.get();
-    }
+    value p1 = Producer(storage, 1);
+    value c1 = Consumer(storage, 1);
+
+    p1.start();
+    c1.start();
 }

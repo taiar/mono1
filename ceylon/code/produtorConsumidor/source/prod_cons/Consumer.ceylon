@@ -3,7 +3,7 @@ import java.lang {
 	Math
 }
 
-class Consumer(Storage storage, Integer id) {
+class Consumer(Storage storage, Integer id) extends Thread() {
 	
 	void consume() {
 		if(Math.random()  < 0.5) {
@@ -14,10 +14,10 @@ class Consumer(Storage storage, Integer id) {
 		}
 	}
 	
-	shared void run() {
+	shared actual void run() {
 		while(true) {
 			this.consume();
-			Thread.sleep(getRandomInteger(1, 4));
+			this.sleep(getRandomInteger(1, 4) * 1000);
 		}
 	}
 	
