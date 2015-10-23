@@ -1,22 +1,13 @@
-import java.util {
-	Random
-}
-import java.util.concurrent {
-	Semaphore
-}
-import ceylon.collection {
-	ArrayList
-}
-import java.lang {
-	Thread,
-	Math
-}
+import ceylon.collection { ArrayList }
+import java.util.concurrent { Semaphore }
+import java.lang { Thread, Math }
 
-shared Integer getRandomInteger(Integer a, Integer b) {
-	Random r = Random();
+shared Integer getRandomInteger(Integer a = 1, Integer b = 5) {
 	value range = b - a + 1;
-	value fraction = (range * r.nextDouble());
-	return (fraction + a).integer;
+	value fraction = (range * Math.random());
+	value gen = (fraction + a).integer;
+	print(gen);
+	return gen;
 }
 
 class Producer(Storage storage, shared actual Integer id) extends Thread() {
@@ -55,12 +46,12 @@ class Consumer(Storage storage, shared actual Integer id) extends Thread() {
 
 class Storage(shared Integer storageSpaces) {
 	
-	value loads = ArrayList<Integer>(storageSpaces);
+	value buffer = ArrayList<Integer>(storageSpaces);
 	variable Integer lastEmpty = 0;
 	value m = Semaphore(1);
 	
 	for(i in 0..(this.storageSpaces - 1)) {
-		this.loads.push(0);
+		this.buffer.push(0);
 	}
 	
 	shared void get(Producer|Consumer actor) {
@@ -71,11 +62,11 @@ class Storage(shared Integer storageSpaces) {
 			print("[Storage] I have nothing for you now. Look: ");
 		} else {
 			this.lastEmpty--;
-			this.loads.set(this.lastEmpty, 0);
+			this.buffer.set(this.lastEmpty, 0);
 			print("[Storage] Ok, I got a thing for you.");
 		}
 		m.release();
-		this.printMe();
+		this.printBuffer();
 	}
 	
 	shared void add(Producer|Consumer actor) {
@@ -85,18 +76,18 @@ class Storage(shared Integer storageSpaces) {
 		if(this.lastEmpty == this.storageSpaces) {
 			print("[Storage] I'm full! Can't take it right now, look:");
 		} else {
-			this.loads.set(this.lastEmpty, 1);
+			this.buffer.set(this.lastEmpty, 1);
 			this.lastEmpty++;
 			print("[Storage] Tank you! I'll store it.");
 		}
 		m.release();
-		this.printMe();
+		this.printBuffer();
 	}
 	
-	shared void printMe() {
+	shared void printBuffer() {
 		m.acquire();
 		process.write("[ ");
-		for (load in this.loads) {
+		for (load in this.buffer) {
 			process.write(load.string + " ");
 		}
 		print("]");
