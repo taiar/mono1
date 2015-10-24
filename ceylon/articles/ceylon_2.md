@@ -1,0 +1,358 @@
+# The Ceylon programming language - advanced features
+
+## A Ceylon example
+
+To show some more interesting features of Ceylon, I wrote a version of the
+Producer-consumer problem. This is a classic example of a multi-process
+synchronization problem. It describes two processes, the producer and the
+consumer, who share a common, fixed-size storage (buffer) used as a queue. The
+producer's job is to generate a piece of data, put it into the storage and start
+again. At the same time, the consumer is consuming the data (i.e., removing it
+from the storage) one piece at a time. The problem is to make sure that the
+producer won't try to add data into the storage if it's full and that the
+consumer won't try to remove data from an empty storage. <sup><a href="#1"
+name="1_b">1</a></sup>
+
+The implementation relies strongly of the Java Thread libraries. The Producer
+and the Consumer objects runs on different threads, each instance of each
+object. The Storage class manage the additions of the producers and the
+remotions of the consumers on the buffer. For synchronicity I used the Java's
+Semaphore class.
+
+Let's see the code and I'll give the explanations:
+
+```java
+import ceylon.collection { ArrayList }
+import java.util.concurrent { Semaphore }
+import java.lang { Thread, Math }
+
+shared Integer getRandomInteger(Integer a, Integer b) {
+	value range = b - a + 1;
+	value fraction = (range * Math.random());
+	return (fraction + a).integer;
+}
+
+class Producer(Storage storage, shared actual Integer id) extends Thread() {
+	
+	void produce() {
+		if(Math.random() < 0.5) {
+			storage.add(this);
+		}
+	}
+	
+	shared actual void run() {
+		while(true) {
+			this.produce();
+			this.sleep(getRandomInteger(1, 4) * 1000);
+		}
+	}
+	
+}
+
+class Consumer(Storage storage, shared actual Integer id) extends Thread() {
+	
+	void consume() {
+		if(Math.random()  < 0.5) {
+			storage.get(this);
+		}
+	}
+	
+	shared actual void run() {
+		while(true) {
+			this.consume();
+			this.sleep(getRandomInteger(1, 4) * 1000);
+		}
+	}
+	
+}
+
+class Storage(shared Integer storageSpaces) {
+	
+	value buffer = ArrayList<Integer>(storageSpaces);
+	variable Integer lastEmpty = 0;
+	value m = Semaphore(1);
+	
+	for(i in 0..(this.storageSpaces - 1)) {
+		this.buffer.push(0);
+	}
+	
+	shared void get(Producer|Consumer actor) {
+		m.acquire();
+		assert(actor is Consumer);
+		print("[Consumer " + actor.id.string + "] Wants to consume!");
+		if(this.lastEmpty == 0) {
+			print("[Storage] I have nothing for you now. Look: ");
+		} else {
+			this.lastEmpty--;
+			this.buffer.set(this.lastEmpty, 0);
+			print("[Storage] Ok, I got a thing for you.");
+		}
+		m.release();
+		this.printBuffer();
+	}
+	
+	shared void add(Producer|Consumer actor) {
+		m.acquire();
+		assert(actor is Producer);
+		print("[Producer " + actor.id.string + "] Produced something.");
+		if(this.lastEmpty == this.storageSpaces) {
+			print("[Storage] I'm full! Can't take it right now, look:");
+		} else {
+			this.buffer.set(this.lastEmpty, 1);
+			this.lastEmpty++;
+			print("[Storage] Tank you! I'll store it.");
+		}
+		m.release();
+		this.printBuffer();
+	}
+	
+	shared void printBuffer() {
+		m.acquire();
+		process.write("[ ");
+		for (load in this.buffer) {
+			process.write(load.string + " ");
+		}
+		print("]");
+		m.release();
+	}
+	
+}
+
+shared void run() {
+	value storage = Storage(15);
+	
+	value p1 = Producer(storage, 1);
+	value p2 = Producer(storage, 2);
+
+	value c1 = Consumer(storage, 1);
+	value c2 = Consumer(storage, 2);
+
+	p1.start();
+	p2.start();
+
+	c1.start();
+	c2.start();
+}
+```
+
+The first thing we see are the imports. We are already used to them, in the
+first article where I used already some Java interoperability and explained the
+concept of modules. Every of these things are used here.
+
+### Toplevel functions
+
+After that, we can se a function called _getRandomInteger_. In Ceylon, this is a
+_toplevel function_. A toplevel function declaration, or a function declaration
+nested inside the body of a containing class or interface, may be annotated
+_shared_ (in the last article, I talked about the shared annotation and the
+visibility issues). A toplevel shared function is visible wherever the package
+that contains it is visible. 
+
+Another interesting thing about _toplevel_ functions in Ceylon is that they can
+be called by external programs on the system. On the example, I'll modify the
+function a little so we can see what is going on:
+
+```java
+shared Integer getRandomInteger(Integer a = 1, Integer b = 5) {
+	value range = b - a + 1;
+	value fraction = (range * Math.random());
+	value gen = (fraction + a).integer;
+	print(gen);
+	return gen;
+}
+```
+
+The toplevel function must have no parameters (or default value parameters) so
+you can call her externally. By placing our program inside a module called
+_prodcons_ (see the module session on the first article), we can compile and
+run the program like:
+
+```
+ceylon compile
+
+ceylon run --run prodcons::getRandomInteger prodcons
+```
+
+The random integer numbers between [1, 5[ will be generated by the program and
+printed on the screen. 
+
+### Classes 
+
+We have then, the class _Producer_ which is the very same class of the
+_Consumer_, except it calls different methods of the _Storage_ class. The
+first interesting thing we can see is that Ceylon 1.1 has no constructor
+methods. Since the earliest versions of the language, it supports a streamlined
+syntax for class initialization where the parameters of a class are listed right
+after the class name, and initialization logic goes directly in the body of the
+class.<sup><a href="#2"name="2_b">2</a></sup>
+
+We can instantiate the class Producer like this:
+
+```java
+value prod = Producer(Storage(15), 1);
+```
+
+The ability to refer to parameters of the class directly from the members of the
+class has the intuit to cut down on verbosity. However, there are moments when
+we would really appreciate the ability to write a class with multiple
+initialization paths, something like constructors in Java. The constructors are
+being implemented on Ceylon and will be available in the next versions of the
+language.
+
+The annotation _shared_ on the parameter **id** says that this is like a Java's
+_public_ member of the class. **storage** is not annotated, so it is like a 
+private one. 
+
+Look at the annotation _actual_ that is used in the same **id** parameter and in
+the **run** method. It tells that, inside the inheritance tree of possible 
+values (since the two classes extends the Thread Java class) that could 
+overwrite the method or the variable, this is the very one that will do it. So,
+**shared id** is overwriting the parameter id (probably on the Thread Java 
+class) and **shared run** is overwriting a run method (surely on the Thread Java
+class). In the case of Interfaces, the word to tell that a class implements 
+(from Java) an interface is **satisfies**; so a class __satisfies__ an 
+interface. The annotation __actual__ is used to tell what method is 
+__satisfying__ the Interface's specification.
+
+### Collections, sequences and tuples
+
+Ceylon SDK has a great library that implements every kind of collections, just 
+like Java does. There are interfaces and classes to implement all sort of 
+operations involving _ArrayList_, _LinkedList_, _PriorityQueue_, _HashSet_, 
+_HashMap_, _TreeSet_, _TreeMap_ etc.<sup><a href="#3"name="3_b">3</a></sup>
+In our example, I used an _ArrayList_ (wich is the implementation of a list 
+using arrays) to store the production of the Producer.
+
+In the example, I used a loop to initialize every cell of the _buffer_ list with
+the value zero. In the for loop, I used a **Sequence** to generate the iterable
+value. Sequence is a type that in the first time could look very familiar to a 
+Java array but in fact they are very different. First of all, the sequence is a
+**immutable** type and not a mutable concrete type like the array. We can't set 
+the value of an element like:
+
+```java
+String[] operators = .... ;
+operators[0] = "^"; //compile error
+```
+
+This following code, doesn't compile too:
+
+```java
+for (i in 0..operators.size-1) {
+    String op = operators[i]; //compile error
+    // ...
+}
+```
+
+The index operation ```operators[i]``` returns an optional type _String?_, which
+cannot be assigned to the type _String_. Instead, if we need access to the 
+index, we use the special form of **for**:
+
+```java
+for (i -> op in operators.indexed) {
+    // ...
+}
+```
+
+Ceylon has the **tuple** type too. It might be a very common use for the most of
+those who already worked with a language that has tuples.
+
+```java
+[Float,Float,String] point = [0.0, 0.0, "origin"];
+```
+
+### Type system
+
+Every value in a Ceylon program is an instance of a type that can be expressed 
+within the Ceylon language as a class. The language does not define any 
+primitive or compound types that cannot, in principle, be expressed within the 
+language itself.
+
+Each class declaration defines a type. However, not all types are classes. It is
+often advantageous to write generic code that abstracts the concrete class of a 
+value. This technique is called polymorphism. Ceylon features two different 
+kinds of polymorphism:
+
+- **subtype polymorphism**, where a subtype _B_ inherits a supertype _A_, and
+- **parametric polymorphism**, where a type definition _A<T>_ is parameterized 
+    by a generic type parameter T.
+
+Ceylon, like Java and many other object-oriented languages, features a single 
+inheritance model for classes. A class may directly inherit at most one other 
+class, and all classes eventually inherit, directly or indirectly, the class 
+_Anything_ defined in the module _ceylon.language_, which acts as the root of 
+the class hierarchy.
+
+In our example, we use a parameter of the methods _add_ and  _get_ which is
+_Producer|Consumer_ type. This type means that, whateaver a _Producer_ or a 
+_Consumer_ parameter passed the this method, it'll work. The methods doesn't 
+need this, I place'em there just for exemplification. In Ceylon, this is called
+**Union types**. For any types _X_ and _Y_, the union, or disjunction, _X|Y_, of
+the types may be formed. A union type is a supertype of both of the given types 
+_X_ and _Y_, and an instance of either type is an instance of the union type.
+
+### Assertions and exceptions
+
+The assert statement validates a given condition, throwing an 
+_AssertionException_ if the condition is not satisfied. A distinguishing 
+characteristic of Ceylon is that exceptions aren't used to represent programming
+errors. The Ceylon creators thinks that exceptions like _NullPointerException_, 
+_ClassCastException_ and _IndexOutOfBoundsException_ should never occur in at 
+runtime in a production system. They represent problems that must be fixed by 
+the programmer editing code, tend to hide the "corner" condition they represent 
+from someone reading the code and are much too low-level to carry any useful 
+information about the real problem. Because of that, Ceylon tries to encode 
+these "corner" conditions into the type system. 
+The compiler won't let you write:
+
+```java
+print(process.arguments[1].uppercased);
+```
+
+This code isn't well-typed because ```process.arguments[1]``` is of type 
+_String?_, reflecting the fact that there might not be a second element in the 
+```list process.arguments```. Instead you're forced to at least take into 
+account the possibility that there are less than two arguments:
+
+```java
+if (exists arg = process.arguments[1]) {
+    print(arg.uppercased);
+}
+else {
+    throw Exception("missing second argument");
+}
+```
+
+Obviusly, the code is a little bigger than the initial code we had but of course
+the problem is very much clear, semanthic and the readers of the code would 
+understand the problem behind the size of the arguments in a much clearer way.
+
+### Concurrency
+
+In our example, inside of the methods _get_ and _add_ of the _Storage_ class is
+where we would have concurrency problems.<sup><a href="#1" name="1_b">1</a></sup>
+To solve this potential problems, the class uses syncronization implemented with
+semaphores. I used the Semaphore class from Java _"acquiring"_ and _"releasing"_
+the execution flow whateaver some of the Threads are updating the _buffer_ or 
+printing in the screen.
+
+In Java is very common to use the _synchronized_ method annotation to tell a 
+Thread that this method have race conditions, and the JVM takes care of the 
+concurrency. To use it with Ceylon, I had to especifically put the call to the
+syncronization methods because it doesn't have the annotation nor any kind of 
+compatibility with it.
+
+## Quotes
+
+- <sup>[[1](#1_b)]</sup> <a name="1" href="https://en.wikipedia.org/wiki/Producer–consumer_problem" target="_blank">https://en.wikipedia.org/wiki/Producer–consumer_problem</a>
+- <sup>[[2](#2_b)]</sup> <a name="2" href="http://ceylon-lang.org/blog/2015/06/21/constructors/" target="_blank">http://ceylon-lang.org/blog/2015/06/21/constructors/</a>
+- <sup>[[3](#3_b)]</sup> <a name="3" href="https://modules.ceylon-lang.org/modules/ceylon.collection/1.1.0/doc" target="_blank">https://modules.ceylon-lang.org/modules/ceylon.collection/1.1.0/doc</a>
+
+## References
+
+- [http://ceylon-lang.org/documentation/tour/inheritance/](http://ceylon-lang.org/documentation/tour/inheritance/)
+- [http://ceylon-lang.org/documentation/tour/inheritance/](http://ceylon-lang.org/documentation/tour/inheritance/)
+- [http://ceylon-lang.org/blog/2013/01/21/abstracting-over-functions/](http://ceylon-lang.org/blog/2013/01/21/abstracting-over-functions/)
+- [http://ceylon-lang.org/documentation/current/spec/html_single/index.html#assertions](http://ceylon-lang.org/documentation/current/spec/html_single/index.html#assertions)
+- [http://ceylon-lang.org/blog/2012/10/30/assertions/](http://ceylon-lang.org/blog/2012/10/30/assertions/)
+- [http://ceylon-lang.org/documentation/spec/html/typesystem.html](http://ceylon-lang.org/documentation/spec/html/typesystem.html)
