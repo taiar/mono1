@@ -21,7 +21,7 @@ Semaphore class.
 
 Let's see the code and I'll give the explanations:
 
-```java
+```ceylon
 import ceylon.collection { ArrayList }
 import java.util.concurrent { Semaphore }
 import java.lang { Thread, Math }
