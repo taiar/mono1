@@ -1,0 +1,5 @@
+#
+#Wed Oct 14 19:17:16 BRT 2015
+monografia/exemplos/random/getRandomInteger_.class=monografia/exemplos/random/random.ceylon
+monografia/exemplos/random/run_.class=monografia/exemplos/random/random.ceylon
+monografia/exemplos/random/$module_.class=monografia/exemplos/random/module.ceylon
