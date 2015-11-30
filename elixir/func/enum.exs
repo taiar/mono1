@@ -1,0 +1,1 @@
+IO.puts Enum.reduce([2, 3, 5], 0, fn(x, acc) -> x + acc end)
