@@ -1,20 +1,16 @@
 defmodule Fib do
 
-  def run(ns) do
-    ns
+  def run(list) do
+    list
     |> Enum.with_index
-    |> Enum.map fn(ni) ->
-      spawn_run(self, ni)
-    end
-
-    receive_fibs(length(ns), [])
+    |> Enum.map fn(ni) -> spawn_run(self, ni) end
+    receive_fibs(length(list), [])
   end
 
   defp receive_fibs(lns, result) do
     receive do
       fib ->
         result = [fib | result]
-
         if lns == 1 do
           IO.puts(print_fibs(result))
         else
@@ -38,17 +34,11 @@ defmodule Fib do
     send pid, {fib(n), i}
   end
 
-  def fib(0) do
-    0
-  end
+  def fib(n) do fib(n, 1, 0) end
+  def fib(0, _, _) do 0 end
+  def fib(1, a, b) do a + b end
+  def fib(n, a, b) do fib(n - 1, b, a + b) end
 
-  def fib(1) do
-    1
-  end
-
-  def fib(n) do
-    fib(n - 1) + fib(n - 2)
-  end
 end
 
-Fib.run([0,1,2,3,4,5,6,7,8, 30, 31, 32, 33, 34, 35, 36, 50, 51, 52, 53, 54])
+Fib.run([30,31,32,33,34,35,36,37,38,39,40])
