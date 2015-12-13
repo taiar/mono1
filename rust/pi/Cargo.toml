@@ -1,0 +1,8 @@
+[package]
+name = "point"
+version = "0.1.0"
+authors = ["André Taiar <taiar@hotmail.com>"]
+
+[dependencies]
+rand = "*" # Or a specific version
+
