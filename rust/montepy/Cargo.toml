@@ -1,0 +1,11 @@
+[package]
+name = "montepy"
+version = "0.1.0"
+authors = ["André Taiar <taiar@hotmail.com>"]
+
+[dependencies]
+rand = "*"
+
+[lib]
+name = "montepi"
+crate-type = ["dylib"]
