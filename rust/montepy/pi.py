@@ -3,6 +3,8 @@ import ctypes
 
 lib = cdll.LoadLibrary("target/release/libmontepi.so")
 
-print lib.montecarlopi(1000000)
+montecarlopi = lib.montecarlopi
+montecarlopi.restype = ctypes.c_float
+print montecarlopi(100000000)
 
 print("done!")
