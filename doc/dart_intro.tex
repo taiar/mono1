@@ -1,128 +1,129 @@
 \subsection{How did it appear?}
 
 Dart is an open source script language focused in web applications and developed
-by Google\cite{3_1}. It was announced at GOTO
-Conference 2011 (Aarhus, Denmark)\cite{3_2} and
-its first stable release, Dart 1.0, comes in November
-2013\cite{3_3}.
+by Google \cite{3_1}. It was announced at GOTO Conference 2011 (Aarhus, Denmark)
+\cite{3_2} and its first stable release, Dart 1.0, comes in November 2013
+\cite{3_3}.
 
 It was designed by Lars Bak and Kasper Lund, both of them employed by Google.
 Lars has contributed to the Chrome Browser project developing the V8 JavaScript
-Engine\cite{3_4}, the open source JavaScript
+Engine \cite{3_4}, the open source JavaScript
 engine that runs Google's browser and gave birth to some other big projects like
-Node.js\cite{3_5}.
+Node.js \cite{3_5}.
 
-### Why was it designed and implemented?
+\subsection{Why was it designed and implemented?}
 
-In the words of Google\cite{3_6}:
+In the words of Google \cite{3_6}:
 
-> At Google we’ve written our share of web apps, and we’ve tried in many ways to
-> make improvements to that development process, short of introducing a new
-> language. Now we think it’s time to take that leap. We designed Dart to be
-> easy to write development tools for, well-suited to modern app development,
-> and capable of high-performance implementations.
+\begin{quotation}
+At Google we’ve written our share of web apps, and we’ve tried in many ways to
+make improvements to that development process, short of introducing a new
+language. Now we think it’s time to take that leap. We designed Dart to be
+easy to write development tools for, well-suited to modern app development,
+and capable of high-performance implementations.
+\end{quotation}
+
 
 But in pragmatic terms all this means that Google thinks that JavaScript is
 unproductive and his proposal to improve it was to design a better language for
 the browsers. Google is investing a lot of effort on both sides, JavaScript
-and Dart\cite{3_7} and believes that developers
+and Dart \cite{3_7} and believes that developers
 should have a choice when they build for the web. Adding a new option, such as
 Dart, does not imply replacing the JavaScript already existing 
-option\cite{3_8}.
+option \cite{3_8}.
 
 Dart has its own Virtual Machine which enable the Dart programs to run on every
 systems. There is also a **dar2js** compiler which makes Dart code compile to
 JavaScript code and run on modern browsers. And there is the third option, the
-Dartium\cite{3_9} project that brings the Dart VM
+Dartium \cite{3_9} project that brings the Dart VM
 inside a Chromium Browser, so Dart can be used directly as a browser's script
 language like JavaScript does at Chrome nowadays.
 
 The Dart team isn't focused in bring Dart to Google Chrome but in compiling Dart
 to JavaScript. They have decided not to integrate the Dart VM into
-Chrome but to generate a better JavaScript compilation\cite{3_10}
-\cite{3_11}.
+Chrome but to generate a better JavaScript compilation \cite{3_10}
+ \cite{3_11}.
 
-### How can we use it, e.g., install and run?
+\subsection{How can we use it, e.g., install and run?}
 
 Dart has it's own Virtual Machine and has easy installations on all major
 systems. The current stable version of Dart is **1.12.2**. For installation on a
 **Mac** you can use Homebrew:
 
-```
-brew tap dart-lang/dart
-brew install dart
-```
+\begin{verbatim}
+$ brew tap dart-lang/dart
+$ brew install dart
+\end{verbatim}
 
 Also you can install the Dartium browser with:
 
-```
-brew tap dart-lang/dart
-brew install dart --with-content-shell --with-dartium
-```
+\begin{verbatim}
+$ brew tap dart-lang/dart
+$ brew install dart --with-content-shell --with-dartium
+\end{verbatim}
 
 For **Linux** there are **Debian** packages and these are the commands for
 installation on the Debian based systems:
 
-```
-sudo apt-get install apt-transport-https
-sudo sh -c 'curl https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -'
-sudo sh -c 'curl https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list'
-sudo apt-get update
-sudo apt-get install dart
-```
+\begin{verbatim}
+$ $sudo apt-get install apt-transport-https
+$ sudo sh -c 'curl https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -'
+$ sudo sh -c 'curl https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list'
+$ sudo apt-get update
+$ sudo apt-get install dart
+\end{verbatim}
 
-There are other options to build and install on **various Linux** distros\cite{3_12}.
+There are other options to build and install on **various Linux** distros \cite{3_12}.
 
 There is also the versions of the SDK where you can download the portable
-package and link to your system's path whatever you want:
-[https://www.dartlang.org/downloads/archive/](https://www.dartlang.org/downloads/archive/).
+package and link to your system's path whatever you want: \url{https://www.dartlang.org/downloads/archive/}
 
 Now let's check if the installation works. In any path (Dart doesn't force
-directory structure) create the file called _hello.dart_ with the following
+directory structure) create the file called $hello.dart$ with the following
 content:
 
-```dart
+\begin{lstlisting}[label=dhw,caption=Dart Hello World]
 main() {
   print("Hello Dart!");
 }
-```
+\end{lstlisting}
 
-Run with ```dart hello.dart``` and the "Hello Dart!" message must show up. Now
-test the JavaScript compilation by running, with the same _hello.dart_ file, the
+Run with $dart hello.dart$ and the \"Hello Dart!\" message must show up. Now
+test the JavaScript compilation by running, with the same $hello.dart$ file, the
 command:
 
-```
-dart2js hello.dart
-```
+\begin{verbatim}
+$ $dart2js hello.dart
+\end{verbatim}
 
-You might have the message _Dart file (hello.dart) compiled to JavaScript:
-out.js_. The contents of the file _out.js_ is huge if compared to the initial
+You might have the message $Dart file (hello.dart) compiled to JavaScript:
+out.js$. The contents of the file $out.js$ is huge if compared to the initial
 Dart code. We will have more details of JavaScript compilation in the future.
 Now,if you have a JavaScript runtime in your system, like Node.js, you will have
-the same result of running the _hello.dart_ file if you run:
+the same result of running the $hello.dart$ file if you run:
 
-```
-node out.js
-```
+\begin{verbatim}
+$ node out.js
+\end{verbatim}
 
 If you don't have a JavaScript runtime in your system, you'll test the
-JavaScript compilation by creating a _test.html_ file in the same directory
-of the _out.js_ file with the following content:
+JavaScript compilation by creating a $test.html$ file in the same directory
+of the $out.js$ file with the following content:
 
-```html
+\begin{verbatim}
 <script type="text/javascript" src="out.js"></script>
-```
+\end{verbatim}
 
 Then open the file in a modern browser (like Google Chrome or Mozilla Firefox)
-and open the browser console (by pressing the F12 key) and the message _Hello
-Dart!_ is printed in the browser's console.
+and open the browser console (by pressing the F12 key) and the message $Hello
+Dart!$ is printed in the browser's console.
 
-### Simple programs
+\subsection{Simple programs}
 
 I will demonstrate some features of the language by writing some simple
 programs and analysing some points right after it.
 
-#### Dart Packages
+\subsubsection{Dart Packages}
 
 Every Dart program is a library, even if it the program is not written using
 libraries definitions. Libraries not only provide APIs, but are a unit of
@@ -131,13 +132,13 @@ inside the library (like private or protected members in Java).
 
 Libraries can be distributed using packages. Dart has a powerful package
 manager that resolve package dependencies and package installation as we
-specify our project dependencies. Dart has also a huge repository of packages[https://pub.dartlang.org/]
-that delivers the packages listed as project's dependencies.
+specify our project dependencies. Dart has also a huge repository of packages
+\cite{3_17} that delivers the packages listed as project's dependencies.
 
 Let's implement a Dart example program that uses the package manager to install
-a library. This is the code of the program _request.dart_:
+a library. This is the code of the program $request.dart$:
 
-```dart
+\begin{lstlisting}[label=dpacl,caption=Dart Package Usage]
 import 'dart:math';
 import 'package:http/http.dart' as http;
 
@@ -159,42 +160,42 @@ ramones() {
 main() {
   ramones();
 }
-```
+\end{lstlisting}
 
-The program above makes a http get request\cite{3_13}
+The program above makes a http get request \cite{3_13}
 to a document with some phrases (one per line), choose a random line and print
 the phrase on it. If we try to run this program now, we'll have some errors:
 
-```
+\begin{verbatim}
 $ dart _request.dart
 Unhandled exception:
 Could not resolve a package location for base at file:///home/taiar/dev/monografia/mono1/dart/get_request/get_request.dart
 #0      _handlePackagesReply (dart:_builtin:416)
 #1      _RawReceivePortImpl._handleMessage (dart:isolate-patch/isolate_patch.dart:148)
-```
+\end{verbatim}
 
-As the error is telling us, the program _could not resolve the package location_.
-That happens because the command ```import 'package:http/http.dart' as http;```
+As the error is telling us, the program $could not resolve the package location$.
+That happens because the command $import 'package:http/http.dart' as http;$
 is trying to use a package that is not from Dart's default SDK and is not
 present in our environment. Dart SDK ships with a program called **pub**. With
 this tool we can define our program's dependencies and install all the possible
 package's dependencies these packages need to work. To configure the project's 
 dependencies, we'll have to use the pub specifications. We define the program's
-dependencies with a file called _pubspec.yaml_ in the root of our project. For 
+dependencies with a file called $pubspec.yaml$ in the root of our project. For 
 this example, the pubspec.yaml should look like this:
 
-```yaml
+\begin{verbatim}
 name: request
 dependencies:
   http: any
-```
+\end{verbatim}
 
-It says that, for our project called _request_, we have a dependency with the
-package _http_, at _any_ version (we are assuming that all _http_ package
+It says that, for our project called $request$, we have a dependency with the
+package $http$, at $any$ version (we are assuming that all $http$ package
 versions have the functionalities we need to run our program). To install the
 dependencies, we have to run the command:
 
-```
+\begin{verbatim}
 $ pub get
 Resolving dependencies... (5.5s)
 + charcode 1.1.0
@@ -209,19 +210,19 @@ Resolving dependencies... (5.5s)
 + string_scanner 0.1.4
 + typed_data 1.0.0
 Changed 11 dependencies!
-```
+\end{verbatim}
 
 As you can see, it downloads lots of other packages, all they are dependencies
-for the _http_ package (and, or course, for our program). All done, if we try to
+for the $http$ package (and, or course, for our program). All done, if we try to
 run the program again, it might work correctly:
 
-```
+\begin{verbatim}
 $ dart get_request.dart
 Please wait, consulting the Ramones:
 & I won't be back till monday
-```
+\end{verbatim}
 
-#### Asynchronous Programming
+\subsubsection{Asynchronous Programming}
 
 Dart is a single-threaded programming language. If any code blocks the thread of
 execution (for example, by waiting for a time-consuming operation like some
@@ -229,12 +230,12 @@ heavy I/O operation or a network request) the program effectively freezes.
 Asynchronous operations let your program run without getting blocked. Dart uses 
 Future objects to represent asynchronous operations.
 
-Lets make a new version of our previous _request.dart_ program. This new version
+Lets make a new version of our previous $request.dart$ program. This new version
 will make 2 HTTP Get request: the usual Ramones quotes and the other one teach
-us how to say "Merry Christmas" in various languages of the world. This is the
+us how to say \"Merry Christmas\" in various languages of the world. This is the
 code:
 
-```dart
+\begin{lstlisting}[label=dram,caption=Dart Making Asynchronous Requests]
 import 'dart:math';
 import 'package:http/http.dart' as http;
 
@@ -262,38 +263,39 @@ main() {
   ramones();
   natal();
 }
-```
+\end{lstlisting}
 
 Running the program, we would have a result like:
 
-```
+\begin{verbatim}
 Please wait, consulting the Ramones:
 This is how we say 'Merry Christmas' in:
 Havaiano  Mele Kalikimaka
 Come along (surfin') baby wait and see (surfin' safari)
-```
+\end{verbatim}
 
 There is one problem with the program. The program has race conditions. 
-When the ```ramones``` function is called, it prints a message on the screen and
+When the $ramones$ function is called, it prints a message on the screen and
 make the HTTP get request, setting a callback function that choose the line and 
 prints the message when the response of the request returns. Before the response 
-returns, the ```natal``` function is called, printing the message and waiting 
-for another response from HTTP. Then the two responses are back (on diferent 
+returns, the $$natal$$ function is called, printing the message and waiting 
+for another response from HTTP. Then the two responses are back (on different 
 times) and printed too.
 
 Dart has the concept of **Future**. A Future represents a means for getting a
-value sometime in the future \cite{3_14} 
-\cite{3_15} \cite{3_16}.
+value sometime in the future  \cite{3_14} \cite{3_15} \cite{3_16}.
 When a function that returns a Future is invoked, two things happen:
 
-1. The function queues up work to be done and returns an uncompleted Future object.
-2. Later, when a value is available, the Future object completes with that value
-   (or with an error; we’ll discuss that later).
+\begin{enumerate}
+  \item The function queues up work to be done and returns an uncompleted Future object.
+  \item Later, when a value is available, the Future object completes with that value
+        (or with an error; we will discuss that later).
+\end{enumerate}
 
 Lets rewrite the program solving the race conditions with futures to see how it 
 works:
 
-```dart
+\begin{lstlisting}[label=dart,caption=Dart Async and Future]
 import 'dart:math';
 import 'package:http/http.dart' as http;
 
@@ -320,8 +322,8 @@ main() async {
   await ramones();
   natal();
 }
-```
+\end{lstlisting}
 
 We have all those asynchronous methods. We mark'em as asynchronous. We tell the 
-program, which methods it must _await_ the result for continue the execution. 
+program, which methods it must $await$ the result for continue the execution. 
 That's all!
