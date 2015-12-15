@@ -1,0 +1,288 @@
+
+\subsection{How did it appear?}
+
+Red Hat\cite{1_1} is the world's leading provider of open source software
+solutions and it has initiated and sponsored\cite{1_2} the development
+of the Ceylon programming language. Ceylon is first and foremost an open source
+community project.
+
+According to the language's F.A.Q\cite{1_3}, Ceylon was designed to be a
+modern Java with better specification, as we can see in the excerpt:
+
+\begin{quote}
+Well, we've been designing and building frameworks and libraries for Java for
+ten years, and we know its limitations intimately. And we're frustrated. The
+most recent releases of Java go some distance to alleviating some problems,
+but even the newest language features strain to accommodate past mistakes and
+the requirement for full backward compatibility.
+But much of our frustration is not even with the Java language itself. The
+extremely outdated class libraries that form the Java SE SDK are riddled with
+problems. Developing a great SDK is a top priority of the project.
+\end{quote}
+
+\subsection{Why was it designed and implemented?}
+
+Ceylon has a lot of interesting features but, we can start with this
+definition on the homepage\cite{1_4}: \textit{"Ceylon is a language for writing
+large programs in teams"}. The language is deeply influenced by Java and it was
+designed and implemented by people who were hugely involved with Java. People
+like Gavin King, the lead of the Ceylon project in Red Hat and also the creator
+of Hibernate\cite{1_5} (the most popular Object Relational Mapper for Java) and
+other projects in the Oracle's platform.
+
+Modularity is in the very core of the Ceylon language. When a Ceylon's code is
+compiled, it produces module archives. In fact is very similar to Java's
+modules. It generates a *.car file, with *.class files zipped on it. Just
+like Java's *.jar. You'll never be exposed to unpacked *.class files in
+Ceylon. So here we got 2 conclusions. The first one is that the compiler
+really forces the modularity and facilitates the distribution of the generated
+code. The second one is that the Ceylon compiled code runs on the Java Virtual
+Machine (JVM). This second fact is very important because by running on the JVM,
+Ceylon's code is fully interoperable with Java, the Java SDK and its libraries.
+In fact, this interoperability is a major priority of the project.
+
+This is an example of the use of the Java's HashMap data structure on a Ceylon
+program:
+
+\begin{lstlisting}[label=cujhm,caption=Ceylon using Java HashMap]
+import java.util { HashMap }
+
+value javaHashMap = HashMap<String,Integer>();
+javaHashMap.put("zero", 0);
+javaHashMap.put("one", 1);
+javaHashMap.put("two", 2);
+print(javaHashMap.values());
+\end{lstlisting}
+
+Ceylon runs on the JavaScript virtual machine too. In fact the Ceylon's compiler
+can generate JavaScript code if told to do so. It generates modular JavaScript
+in the CommonJS modules format. We'll see more on JavaScript generation in the
+future.
+
+\begin{lstlisting}[label=cjs,caption=Ceylon JavaScript]
+dynamic {
+    dynamic req = XMLHttpRequest();
+    req.onreadystatechange = void () {
+        if (req.readyState==4) {
+            document.getElementById("greeting")
+                    .innerHTML = req.status==200
+                            then req.responseText
+                            else "error";
+        }
+    };
+    req.open("GET", "/sayHello", true);
+    req.send();
+}
+\end{lstlisting}
+
+Ceylon's project always tells how important is the toolset for a complete and
+successful programing project so it ships with a really great Integrated
+Development Environment (IDE) built on a Eclipse plug-in. We'll see more
+detailed information on the {install and run} section below.
+
+\subsection{How can we use it, e.g., install and run?}
+
+By running in the JVM, the Ceylon's compiler got the advantage to run
+on every operating system which has a Java Virtual Machine implementation. It  
+runs both on Java 7 and Java 8 (prior versions are not supported). So before
+installing the Ceylon package, be sure to have the correct Java version
+installed. On this work, I'm using the 1.1 version of the language, released on
+09 October 2014.
+
+For installation on a Mac, you can use the Homebrew installer:
+
+\begin{verbatim}
+$ brew update
+$ brew install ceylon
+\end{verbatim}
+
+There are packages for both Debian and Fedora/Red Hat GNU/Linux flavors on the
+project's download page\cite{1_10}.
+
+For a platform agnostic installation, download the zip archive
+(\url{http://ceylon-lang.org/download/dist/1_1_0}),
+unzip on your system's prefered folder and add the \textbf{/ceylon-1.1.0/bin}
+folder to the path of your system. In a unix-like system you can do that by
+adding the line below on the \textbf{~/.bashrc} file of you user's directory:
+
+\begin{verbatim}
+$ export PATH="/path/to/ceylon-1.1.0/bin:$PATH"
+\end{verbatim}
+
+Now let's check if the installation works. By forcing the modularity, Ceylon
+implies some conventions on the compilation process. At first the code we'll
+write must be on a \textbf{"source"} directory. So place the following code on a
+file called \textbf{"./source/hello.ceylon"}:
+
+\begin{lstlisting}[label=hello,caption=Ceylon Hello World]
+shared void hello() {
+  print("Hello Ceylon!");
+}
+\end{lstlisting}
+
+Outside the \textbf{source's} folder, run the command:
+
+\begin{verbatim}
+$ ceylon compile source/hello.ceylon
+\end{verbatim}
+
+Checkout the \textbf{module} folder created on the same level as the 
+\textbf{source} folder. Check it's content for the \textit{*.car} file and some
+others. To run the compiled source, run the following command:
+
+\begin{verbatim}
+$ ceylon run --run hello default
+\end{verbatim}
+
+\subsection{Simple programs}
+
+I will demonstrate some features of the language by writing some simple programs
+and analyzing some points right after it.
+
+\subsubsection{The treelike structure, simple classes and visibility}
+
+I'll use this example to illustrate the treelike structure that Ceylon has.
+Ceylon's named argument lists provide an elegant way for initializing objects
+and collections. The goal of this facility is to replace the use of XML for
+expressing hierarchical structures such as documents, user interfaces,
+configuration and serialized data.
+
+I'll use this notation to create a binary search tree and make a depth-first
+in-order traversal.
+
+\begin{lstlisting}[label=ctls,caption=Ceylon treelike structure]
+shared class Node(val, left = null, right = null) {
+	shared Integer val;
+	shared Node? left;
+	shared Node? right;
+}
+
+shared void caminhamento_central(Node b) {
+	if(exists next = b.left) {
+		caminhamento_central(next);
+	}
+	process.write(b.val.string + " ");
+	if(exists next = b.right) {
+		caminhamento_central(next);
+	}
+}
+
+shared void run() {
+	Node arvore = Node {
+		val = 1;
+		left = Node {
+			val = 2;
+			left = Node {
+				val = 4;
+				left = Node { val = 8; };
+				right = Node { val = 9; };
+			};
+			right = Node {
+				val = 5;
+				left = Node { val = 10; };
+				right = Node { val = 11; };
+			};
+		};
+		right = Node {
+			val = 3;
+			left = Node {
+				val = 6;
+				left = Node { val = 12; };
+				right = Node { val = 13; };
+			};
+			right = Node {
+				val = 7;
+				left = Node { val = 17; };
+				right = Node { val = 15; };
+			};
+		};
+	};
+
+	caminhamento_central(arvore);
+	print("");
+}
+\end{lstlisting}
+
+The result of this program must be:
+
+\begin{verbatim}
+8 4 9 2 10 5 11 1 12 6 13 3 17 7 15
+\end{verbatim}
+
+
+Look at the word \textit{shared} on some points of the example. This \textit{shared}
+annotation marks a declaration as being visible outside the scope in which it is
+defined, or a package as being visible outside the module to which it
+belongs\cite{1_6}.
+
+It's all about visibility\cite{1_7}. Classes, interfaces, functions, values,
+aliases, and type parameters have names. Occurrence of a name in code implies a
+hard dependency from the code in which the name occurs to the schema of the
+named declaration. We say that a class, interface, value, function, alias, or
+type parameter is visible to a certain program element if its name may occur in
+the  code that belongs to that program element. The visibility of a declaration
+depends upon where it occurs, and upon whether it is annotated \textit{shared}. 
+
+\subsubsection{Random numbers and Java interoperability}
+
+Ceylon's SDK is under constant development\cite{1_8} and there aren't a random
+numbers implementation yet. But Ceylon can use the Java SDK, so I'll use the
+Java random numbers interface to work on a Ceylon's simple example.
+
+\begin{lstlisting}[label=w1,caption=Random number from Java]
+// Import from Java SDK
+import java.util { Random }
+
+shared Integer getRandomInteger(Integer a, Integer b, Random r) {
+	value range = b - a + 1;
+	value fraction = (range * r.nextDouble());
+	return (fraction + a).integer;
+}
+
+shared void run() {
+    Random random = Random();
+    for(number in 1..100) {
+        print(getRandomInteger(1, 100, random));
+    }
+}
+\end{lstlisting}
+
+To use the Java SDK (and other libraries from outside the language's SDK) you
+must use the module structure that is conventioned in the language. I'll use
+this example to show it.
+
+Save the code above on a file called \textbf{random.ceylon} inside of the
+following structure of directories: \textbf{./source/example/random/}. This
+structure corresponds to the namespace of the module we are creating. It's just
+like Java always did.
+
+Inside this same folder, create the file \textbf{module.ceylon}. It is the file
+that will specify the dependencies our module have with external resources (like
+Java libraries) and formalize it's namespace. The content of this file must be:
+
+\begin{lstlisting}
+module example.random "1.0.0" {
+    import java.base "8";
+}
+\end{lstlisting}
+
+The \textit{java.base} module in JDK has Java base packages such as
+\textit{java.lang}, \textit{java.util}, \textit{java.io}, \textit{java.net},
+\textit {java.text}, NIO and security\cite{1_9}. All done, inside of the
+project's root, run the command:
+
+\begin{verbatim}
+$ ceylon compile
+\end{verbatim}
+
+The module will be compiled with the correct dependencies and the files will be
+generated in the correspondent directory of the module (in our example, it
+would be $./modules/example/random/1.0.0/$). Then we can run the code
+with the command:
+
+\begin{verbatim}
+$ ceylon run example.random
+\end{verbatim}
+
+The program will execute calling the method \textit{run} (like the \textit{main}
+method in Java) inside the package \textit{example.random}.
