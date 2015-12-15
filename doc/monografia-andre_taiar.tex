@@ -1,11 +1,15 @@
 \documentclass{abnt}
-\usepackage[brazil]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[num]{abntcite}
 \usepackage{graphicx}
 \usepackage{url}
 \usepackage{caption}
 \usepackage{listings}
+\usepackage[brazil]{babel}
+\addto\captionsbrazil{%
+\def\bibname{References}%
+\def\abstract{Abstract}
+}
 
 \lstset{
 basicstyle=\small\sffamily,
@@ -25,7 +29,7 @@ showstringspaces=false
 
 \orientador[Orientador:\\]{Prof. Dr. Fernando Magno Quintão Pereira}
 
-\comentario{Apresentado como de trabalho na disciplina de Atividades Práticas Integradoras do Curso de Bacharelado em Sistemas de Informação da UFMG}
+\comentario{Apresentado como requisito da disciplina de Monografia em Sistemas de Informação do DCC/UFMG}
 
 \instituicao{Universidade Federal de Minas Gerais \par Instituto de Ciências
 Exatas \par Departamento de Ciência da Computação}
@@ -42,7 +46,7 @@ document is an attempt to provide some answers to these questions. Naturally, it
 would not be possible to provide complete answers: as I mentioned, there are too
 many programming languages. Nevertheless, we chose four languages with a
 potential to grow in importance in the coming years. These programming languages
-are Elixir, Rust, Dart, and Ceylon. During this project, we shall be
+are Ceylon, Dart, Elixir and Rust. During this project, we shall be
 talking about each one of them. These discussions will be in breath, not in
 depth. Their goal is to provide the reader with the minimum of information
 necessary to compare them, and who knows, to lure one or other interested person
@@ -52,103 +56,23 @@ likely - will be paramount to the development of computer science in the next
 ten years.\\
 
 
-\textbf{Palavras-chaves}: saas, gestão, estratégia.
+\textbf{Keywords}: programming languages, ceylon, dart, elixir, rust.
 \end{resumo}
 
 \sumario %comando que gera o sumário automaticamente
-\renewcommand*\listfigurename{LISTA DE FIGURAS}
 \listoffigures %comando que gera um sumário para a lista de figuras do texto automaticamente
 
 
-\chapter{INTRODUÇÃO}
+% \begin{figure}[!htb]
+% 	\centering
+% 	\includegraphics[width=\textwidth]{fluxograma_exemplo.pdf}
+% 	\caption{Exemplo de fluxo de trabalho possível no sistema}
+% 	\label{Rotulo}
+% \end{figure}
 
-O planejamento estratégico das organizações surgiu em em meados da década de 60
-se tratando de uma metodologia que permite estabelecer a direção a ser seguida
-pela organização e visa um maior grau de interação com o ambiente aonde ela
-atua. É um processo aonde se observa a organização por diversos ângulos,
-direcionando os seus rumos e monitorando as suas ações de forma concreta.
-Grandes empresas se beneficiam diretamente do planejamento através de gestão
-estratégica de suas atividades, seja em um escopo amplo ou em projetos e sub
-produtos dentro de sua cadeia de produção.
+\chapter{Ceylon}
 
-Micro e pequenas empresas não costumam se beneficiar diretamente do planejamento
-estratégico e muitos motivos podem ser os motivos para que isso ocorra. O
-assunto de Gestão Estratégica é bastante amplo; muitas técnicas podem ser
-utilizadas e diversas análises podem ser feitas em cima de uma mesma organização
-e dominar a utilização e entendimento destas ferramentas pode ser bastante
-complicado para alguém não especialista na área. Mesmo que um gestor de
-organização tenha domínio ou conhecimento específico sobre algumas destas
-ferramentas do gerenciamento, utilizá-las parcialmente ou separadamente não é
-tão efetivo quanto aplicá-las em uma sequência correta de passos com informações
-integradas entre as etapas do processo. Além destes motivos, geralmente o gestor
-de pequenas e médias empresas já tem grande parte do seu tempo tomado por
-cumprir as funções do próprio metabolismo da organização, faltando tempo a ser
-investido em conhecer melhor tais ferramentas e sua correta aplicação dentro do
-cenário de sua organização.
-
-A proposta desta monografia é desenvolver o protótipo de um sistema que agrupe
-diversas ferramentas de gestão para planejamento estratégico de forma integrada.
-A utilização destas ferramentas se dará de tal forma que o usuário do sistema
-interaja com a plataforma seguindo um fluxo definido de atividades que se
-integram e geram resultados mais relevantes em seu conjunto de especialidades.
-Este fluxo de utilização deve ser o mais didático possível, permitindo que um
-gestor de organização, independente de sua familiaridade com ferramentas de
-gestão estratégica, consiga utilizar corretamente os conceitos e obter
-informações para avaliação e direcionamento do negócio.
-
-Espera-se que deste trabalho resulte um protótipo funcional que seja distribuído
-como um Software as a Service (Saas)\cite{Turner2003}. A principal
-característica em um software como serviço é a não aquisição das licenças mas
-sim pagar pelo uso como um serviço. Funcionando em ambiente web, espera-se que
-o modelo possibilite a aquisição do produto por um baixo preço, tornando sua
-utilização viável para micro e pequenas empresas e atraindo mercado maior devido
-a escala que pode alcançar.\\
-
-\chapter{CONTEXTUALIZAÇÃO E TRABALHOS RELACIONADOS}
-
-A temática deste trabalho é fortemente apoiada sob três pilares principais e
-multidisciplinares. Primeiramente, será desenvolvido um sistema e isso será a
-parte mais técnica do trabalho e reunirá conceitos de engenharia de software,
-cloud computing e gerenciamento de projetos. Em segundo lugar, o software deve
-implementar soluções para gerenciamento estratégico, abrangendo ferramentas
-baseadas em teorias de gestão estratégica de organizações. Por fim, o sistema e
-as informações devem ser disponibilizados por meio de uma interface intuitiva e
-com forte apelo didático, apoiando o usuário às informações necessárias para
-alimentar o sistema e, em alguns pontos críticos, instruindo o usuário na
-operação que deve ser feita no sistema.
-
-\section{Gestão estratégica}
-
-% contextualização da gestão estratégica
-
-O planejamento estratégico é considerado um instrumento administrativo
-relacionado à estratégia empresarial, pois é a sustentação do desenvolvimento e
-da implementação de estratégias empresariais\cite{OLIVEIRA1991}.
-
-% descrição básica dos módulos selecionados
-% explicar o gráfico e exemplificar um modelo de fluxo no sistema
-
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[width=\textwidth]{fluxograma_exemplo.pdf}
-	\caption{Exemplo de fluxo de trabalho possível no sistema}
-	\label{Rotulo}
-\end{figure}
-
-\section{Didática}
-
-% validar a idéia de facilidade de uso do sistema com relação à usuários leigos
-% adicionar ideias de interação e ajudo do sistema
-% validar coisas através de IHC
-
-\section{Software (as a Service)}
-
-% contextualizar o software como serviço
-% contextualizar as metodologias que serão utilizadas
-
-\chapter{DESENVOLVIMENTO DO TRABALHO}
-
-\section{Ceylon language}
+\section{Ceylon language introduction}
 
 \subsection{How did it appear?}
 
@@ -781,26 +705,6 @@ Thread that this method have race conditions, and the JVM takes care of the
 concurrency. To use it with Ceylon, I had to specifically put the call to the
 synchronization methods because it doesn't have the annotation nor any kind of
 compatibility with it.
-
-\chapter{CONCLUSÕES E TRABALHO FUTUROS}
-
-O projeto de interação entre os módulos do sistema demonstrou-se com o tempo ser
-extremamente mais oneroso do que o que foi estimado no início do projeto. Também
-é visível que o plano inicial de desenvolver muitos módulos e ferramentas de
-gestão seria inviável ao longo de um semestre letivo. Neste ponto, a metodologia
-ágil que foi escolhida para gerenciamento do projeto ajudou a refinar as tarefas
-que existiam no \textit{backlog} do projeto, priorizando o que provavelmente
-daria mais visibilidade ao projeto e que poderia ser relevante no contexto de um
-sistema de gestão estratégica: o módulo de \textit{Balanced Scorecard}.
-
-% TODO: falta algum elemento intermediário
-
-Um produto mínimo viável como o que foi idealizado nesse trabalho parece ter um
-potencial de crescimento muito grande. Como visto, o fluxo do projeto idealizado
-foi muito grande em relação ao o que consegui desenvolver ao longo de um
-semestre letivo. Por se tratar de um projeto com um certo apelo comercial,
-pretendo continuar desenvolvendo o produto e investir mais esforço na produção
-de um sistema mais completo.
 
 \bibliography{bibliog}
 
