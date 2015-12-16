@@ -1,0 +1,291 @@
+On this usage example, we'll use most of the concepts on the last article to 
+build a more complex program that explores the concurrent features of Elixir.
+Starting with a Fibonacci function we'll increment the program touching concepts
+that were not in the first article like pipes, processes, communication between 
+processes and tail call optimization.
+
+\subsection{Fibonacci}
+
+Let's begin with a canonical starter recursive Fibonacci implementation with 
+Elixir. Here is the code:
+
+\begin{lstlisting}[label=efib1,caption=Classic Fibonacci]
+defmodule Fib do
+
+  def fib(0) do 0 end
+  def fib(1) do 1 end
+  def fib(n) do fib(n - 1) + fib(n - 2) end
+
+end
+
+IO.puts Fib.fib(0)
+IO.puts Fib.fib(1)
+IO.puts Fib.fib(2)
+IO.puts Fib.fib(3)
+IO.puts Fib.fib(4)
+IO.puts Fib.fib(5)
+IO.puts Fib.fib(6)
+IO.puts Fib.fib(7)
+IO.puts Fib.fib(8)
+\end{lstlisting}
+
+Nothing new here, just right to the point. Just write the problem's definition 
+and we got the right result:
+
+\begin{verbatim}
+  
+\end{verbatim}
+
+\begin{verbatim}
+$ elixir fib.ex 
+0
+1
+1
+2
+3
+5
+8
+13
+21
+\end{verbatim}
+
+\subsection{Many Fibonacci numbers}
+
+Let's improve our last code to generate many numbers passing them as a list to 
+the function. Here is the code:
+
+\begin{lstlisting}[label=emf,caption=Many Fibonacci numbers]
+defmodule Fib do
+
+  def run(list) do
+    list
+    |> Enum.map(&(fib(&1)))
+    |> inspect
+    |> IO.puts
+  end
+
+  def fib(0) do 0 end
+  def fib(1) do 1 end
+  def fib(n) do fib(n - 1) + fib(n - 2) end
+
+end
+
+Fib.run([0,1,2,3,4,5,6,7,8])
+\end{lstlisting}
+
+The $|>$ symbol used in the snippet above is the pipe operator: it simply 
+takes the output from the expression on its left side and passes it as the first
+argument to the function call on its right side. It’s similar to the Unix **|** 
+operator. Its purpose is to highlight the flow of data being transformed by a 
+series of functions. The $run$ function without the pipe operator would be:
+
+\begin{lstlisting}[label=dartMap,caption=Dart dynamic type]
+def run(list) do
+  IO.puts(inspect(Enum.map(list, fn(x) -> fib(x) end )))
+end
+\end{lstlisting}
+
+The $Enum.map$ function calls the function on the second parameter for each 
+element in the list passed as the first parameter returning a new list with the 
+transformed elements. The $inspect$ function returns a String with the list
+\"pretty printed\" (written in a human readable format) and we print the list with
+the $IO.puts$ function. The result of the execution, for whatever $run$ 
+implementations is:
+
+\begin{verbatim}
+$ elixir fib.ex 
+[0, 1, 1, 2, 3, 5, 8, 13, 21]
+\end{verbatim}
+
+
+\subsection{Parallel Fibonacci numbers}
+
+In our last example, we run the function that calculates each Fibonacci's number
+sequentially. The execution waits each of the numbers to be calculated before 
+calculate the next number. Running this program for some bigger numbers would be
+slow. Let's measure the time to calculate the Fibonacci numbers from 30 to 40:
+
+\begin{verbatim}
+$ time elixir fib.ex 
+[832040, 1346269, 2178309, 3524578, 5702887, 9227465, 14930352, 24157817, 39088169, 63245986, 102334155]
+
+real  1m2.186s
+user  1m1.664s
+sys 0m0.684s
+\end{verbatim}
+
+Now I'll rewrite the program to calculate these numbers using data parallelism.
+Our code will distribute the number calculation across different parallel 
+computer cores possibly making the execution faster. Here is the code:
+
+\begin{lstlisting}[label=epf,caption=Parallel processing for Fibonacci in Elixir]
+defmodule Fib do
+
+  def run(list) do
+    list
+    |> Enum.with_index
+    |> Enum.map fn(ni) -> spawn_run(self, ni) end
+    receive_fibs(length(list), [])
+  end
+
+  defp receive_fibs(lns, result) do
+    receive do
+      fib ->
+        result = [fib | result]
+        if lns == 1 do
+          IO.puts(print_fibs(result))
+        else
+          receive_fibs(lns - 1, result)
+        end
+    end
+  end
+
+  defp print_fibs(fibs) do
+    fibs
+    |> Enum.sort(fn({_, a}, {_, b}) -> a < b end)
+    |> Enum.map(fn({f, _}) -> f end)
+    |> inspect
+  end
+
+  def spawn_run(pid, ni) do
+    spawn __MODULE__, :send_run, [pid, ni]
+  end
+
+  def send_run(pid, {n, i}) do
+    send pid, {fib(n), i}
+  end
+
+  def fib(0) do 0 end
+  def fib(1) do 1 end
+  def fib(n) do fib(n - 1) + fib(n - 2) end
+end
+
+Fib.run([30,31,32,33,34,35,36,37,38,39,40])
+\end{lstlisting}
+
+Our already existent $run$ function was modified. The $Enum.with_index$ 
+method returns the collection with each element wrapped in a tuple alongside its
+index. This way we can identify this number later to return them in the correct
+order. The $Enum.map$ function that used to call the $fib$ function now 
+calls a $spawn_run$ function. At the end of the $run$ function it calls a 
+$receive_fibs$ function.
+
+The $spawn_run$ function just spawn off new processes \cite{6_1}
+of execution. The Elixir's $spawn$ function takes a function which it will 
+execute in another process. It returns a PID (process identifier). The spawned 
+process will execute the given function and exit after the function is done. The
+program uses the $send$ and $receive$ functions to comunicate between 
+different proccesses. The $send$ method receives a PID and a message and sends
+the message to the proccess with the referred PID. The $receive$ function has 
+one parameter that must be a function that will receive the potentially message 
+sent. 
+
+So in our code, the $spawn_run$ is called (for each one of the numbers we want
+the fibonacci number) and it calls a $send_run$ function. The $send_run$ 
+function sends back a result of our already known $fib$ functions. The receive
+function is used inside the $receive_fibs$ function. $receive_fibs$ works as
+a synchronization function that awaits the execution of all parallel $fib$ 
+calls, adding them to a list and returning this list when there is no more 
+proccesses running.
+
+When all the execution is over, the $receive$ method calls the $print_fibs$
+function. This function orders the calculated number by its index (mentioned on 
+the $run$ function). This is necessary because the result of the parallel 
+and asynchronous execution times are not deterministic and the order it returns 
+the numbers is unknown. At last, the tuples with indexes are removed and just 
+the result of the Fibonacci numbers are printed on the screen.
+
+Now, this is the execution time of the parallel version of the program:
+
+\begin{verbatim}
+$ time elixir fib.ex 
+[832040, 1346269, 2178309, 3524578, 5702887, 9227465, 14930352, 24157817, 39088169, 63245986, 102334155]
+
+real  0m33.141s
+user  1m22.564s
+sys 0m1.208s
+\end{verbatim}
+
+The real execution time of the parallel program is almost the half of the 
+execution time for the sequential version of the code. This time would become 
+even better if the machine that executes the program has a processor with a 
+bigger number of execution cores.
+
+\subsection{Tail call optimization}
+
+Tail-call optimization is where you are able to avoid allocating a new stack 
+frame for a function because the calling function will simply return the value 
+that it gets from the called function.
+
+The parallel portion of the implementations just remains the same. The 
+modification is on the $fib$ functions that now has a tail call, avoiding so 
+many recursion calls. Here is the code:
+
+\begin{lstlisting}[label=dartMap,caption=Parallel Fibonacci with tail call optimization]
+defmodule Fib do
+
+  def run(list) do
+    list
+    |> Enum.with_index
+    |> Enum.map fn(ni) -> spawn_run(self, ni) end
+    receive_fibs(length(list), [])
+  end
+
+  defp receive_fibs(lns, result) do
+    receive do
+      fib ->
+        result = [fib | result]
+        if lns == 1 do
+          IO.puts(print_fibs(result))
+        else
+          receive_fibs(lns - 1, result)
+        end
+    end
+  end
+
+  defp print_fibs(fibs) do
+    fibs
+    |> Enum.sort(fn({_, a}, {_, b}) -> a < b end)
+    |> Enum.map(fn({f, _}) -> f end)
+    |> inspect
+  end
+
+  def spawn_run(pid, ni) do
+    spawn __MODULE__, :send_run, [pid, ni]
+  end
+
+  def send_run(pid, {n, i}) do
+    send pid, {fib(n), i}
+  end
+
+  def fib(n) do fib(n, 1, 0) end
+  def fib(0, _, _) do 0 end
+  def fib(1, a, b) do a + b end
+  def fib(n, a, b) do fib(n - 1, b, a + b) end
+
+end
+
+Fib.run([30,31,32,33,34,35,36,37,38,39,40])
+\end{lstlisting}
+
+It might be more illustrative if shown in a non-functional language, like Python:
+
+\begin{lstlisting}[label=ppppp,caption=Python tail call optimization for Fibonacci]
+def fib(i, current = 0, next = 1):
+  if i == 0:
+    return current
+  else:
+    return fib(i - 1, next, current + next)
+\end{lstlisting}
+
+We can see that now, the real execution time of our program is very smaller than
+our two last versions:
+
+\begin{verbatim}
+$ time elixir fib.ex 
+[832040, 1346269, 2178309, 3524578, 5702887, 9227465, 14930352, 24157817, 39088169, 63245986, 102334155]
+
+real  0m2.321s
+user  0m2.152s
+sys 0m0.320s
+\end{verbatim}

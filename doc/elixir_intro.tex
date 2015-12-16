@@ -1,0 +1,447 @@
+
+\subsection{How did it appear?}
+
+Elixir \cite{5_1} is a programming language
+designed to build scalable and maintainable systems. It first appeared in may
+2012 after 1 year of \textit{underground development} and at first it was a solo
+project from its creator and maintainer José
+Valim \cite{5_2}. In the begining of 2012,
+Plataformatec \cite{5_3}, a brazilian tech company
+where José Valim works (and is one of the owners) starts to sponsor and support
+the project and then the language got a real improvement.
+
+Even before the first stable version was launched, Elixir attract many
+contributors and enthusiasts. It counts 6 written books about programming in
+Elixir and other recipes \cite{5_4}, 3
+international conferences \cite{5_5} and 300+
+open source contributors \cite{5_6}. Besides having
+its own community, Elixir is also attracts members of the Ruby and Erlang
+communities too.
+
+The version 1.0 of the language \cite{5_7} was
+released in September 10 in the year of 2014.
+
+\subsection{Why was it designed and implemented?}
+
+Back in 2010, José Valim was a very active member of the Ruby
+Language \cite{5_8} community. He worked on the
+core team of a major Ruby open source project called Ruby on
+Rails \cite{5_9} (a framework to build web
+applications). One of his contributions for this tool was to make the Ruby on
+Rails framework **thread safe**. At first, Ruby on Rails applications doesn't
+scaled horizontally. At that time, there was no advantage on running a Rails
+application on multi-core machines. Making the framework thread safe means that
+the application written in Ruby on Rails when deployed in multi-core machines
+would run efficiently and use all processing power of that environment and in
+the right way (there will exist no problems with concurrency). Valim finds out
+that, on that time, there weren't good tools on Ruby ecosystem to work with
+concurrency and he started do research about this topics trying to find in other
+languages and platforms the best ways to solve the problem they had in Rails.
+
+During his explorations, Valim read the awesome \textbf{7 languages in 7 weeks} 
+\cite{5_10} where he meets the Erlang \cite{5_11} programming language. Erlang
+is a functional programming language and it has a virtual machine. It was
+developed by Ericsson \cite{5_12} and open sourced in 1998. It was designed for
+distributed and fault tolerant applications that runs in real time in a
+uninterrupted environment.
+
+Very interested in the platform, he started to look deeper in the Erlang
+ecossystem writing programs and projects in Erlang. He loved the things the
+language has but misses things that he thought to be very important like good
+metaprogramming and polimorphysm. Despite these misses, the Erlang Virtual
+Machine was really awesome and Erlang was very good in concurrency.
+
+At that time, there was only one language that had all the things Valim wishes
+to have in a language and it was Clojure \cite{5_13}.
+Clojure is a dynamic language (no statyc typing), very extensible and with great
+focus on concurrency. Ruby was a dynamic and extensible language but was not
+good in concurrency scenarios like we saw. Go \cite{5_14}
+has a focus in concurrency but is static typed and not a very extensible
+language. Clojure has all he wants but is a JVM language (language that runs in
+the Java Virtual Machine) and he thinks that was a good idea to have other
+language option on this niche.
+
+\subsection{How can we use it, e.g., install and run?}
+
+The only prerequisite to run Elixir programs is Erlang 17.0 or later. So, before
+install the Elixir you must be sure to have Erlang installed.
+
+\subsubsection{Linux}
+
+There are easy install setups for all major Linux distributions. Most of them
+installs the Erlang Virtual Machine too, so yout don't have do care with it. You
+can install on Ubuntu based distros with the commands:
+
+\begin{verbatim}
+$ wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && sudo dpkg -i erlang-solutions_1.0_all.deb
+$ sudo apt-get update
+$ sudo apt-get install elixir
+\end{verbatim}
+
+on Red Hat distros with:
+
+\begin{verbatim}
+$ yum install elixir
+\end{verbatim}
+
+and on Arch Linux with the command:
+
+\begin{verbatim}
+$ pacman -S elixir
+\end{verbatim}
+
+\subsubsection{Mac OS}
+
+On Mac OS you can install using Homebrew:
+
+\begin{verbatim}
+$ brew update
+$ brew install elixir
+\end{verbatim}
+
+\subsubsection{Windows}
+
+There are precompilled packages for Windows you can download and install on the
+Elixir download session at the website. You can also use the Chocolatey tool
+and install with:
+
+\begin{verbatim}
+cinst elixir
+\end{verbatim}
+
+\subsubsection{Testing the installation}
+
+After installing, let's check if we installed right and we can run Elixir
+programs in our environment. Elixir code can be scripted and interpreted or
+compiled into bytecode that runs on the Erlang VM. Let's checkt the interpreter.
+
+Write and save the following code to the $hello.exs$ file:
+
+\begin{lstlisting}[label=ehw,caption=Elixir Hello World]
+IO.puts "Hello, Elixir!"
+\end{lstlisting}
+
+and then, run the commands:
+
+\begin{verbatim}
+$ elixir hello.exs
+\end{verbatim}
+
+and you'll have the $Hello, Elixir!$ sentence on your screen.
+
+For the compilation to bytecodes, the Elixir program must be inside a module.
+Write the $hello.ex$ file with the following contents:
+
+\begin{lstlisting}[label=emhw,caption=Elixir Hello World inside a module]
+defmodule Hello do
+  def say do
+    IO.puts "Hello, Elixir!"
+  end
+end
+\end{lstlisting}
+
+and compile with the command:
+
+\begin{verbatim}
+$ elixirc hello.ex
+\end{verbatim}
+
+Check that the $Elixir.Hello.beam$ file is created with bytecode in the same
+directory. Let's check if the module works using the Elixir interactive
+environment. Run the program in the command line in this same directory:
+
+\begin{verbatim}
+$ iex
+Erlang/OTP 18 [erts-7.1] [source] [smp:4:4] [async-threads:10] [kernel-poll:false]
+
+Interactive Elixir (1.1.1) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)>
+\end{verbatim}
+
+In the interactive execution environment, type the code:
+
+\begin{verbatim}
+iex(1)> Hello.say()
+Hello, Elixir!
+:ok
+\end{verbatim}
+
+and check that it loads the module and executes the function we defined.
+
+\subsection{Simple programs}
+
+Elixir is a functional language (the only functional-only language I learned on
+this work). Here are its basic types:
+
+\begin{verbatim}
+iex> 1          # integer
+iex> 0x1F       # integer
+iex> 1.0        # float
+iex> true       # boolean
+iex> :atom      # atom / symbol
+iex> "elixir"   # string
+iex> [1, 2, 3]  # list
+iex> {1, 2, 3}  # tuple
+\end{verbatim}
+
+There are some common features in functional languages that we'll
+look on the next examples.
+
+\subsubsection{Anonymous functions}
+
+In the interactive execution environment, let's see some things about anonymous
+functions:
+
+\begin{verbatim}
+$ iex
+Erlang/OTP 18 [erts-7.1] [source] [smp:4:4] [async-threads:10] [kernel-poll:false]
+
+Interactive Elixir (1.1.1) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)> add = fn a, b -> a + b end
+#Function<12.54118792/2 in :erl_eval.expr/5>
+iex(2)> is_function(add)
+true
+iex(3)> add
+#Function<12.54118792/2 in :erl_eval.expr/5>
+iex(4)> add.(2, 4)
+6
+iex(5)> add_ten = fn a -> add.(a, 10) end
+#Function<6.54118792/1 in :erl_eval.expr/5>
+iex(6)> add_ten.(11)
+21
+iex(7)> x = add_ten.(0)
+10
+iex(8)> x
+10
+iex(9)> (fn -> x = 42 end).()
+42
+iex(10)> x
+10
+\end{verbatim}
+
+Functions are delimited by the keywords **fn** and **end**. They can be assigned
+to variables and passed as function parameters just as other types in the
+language. In the example, we assing a function that add two variables to a
+variable called $add$. To test it, we invoke the anonymous function with $add.$
+(we need that point after the variable name to call the anonymous functions) and
+then the parameters.
+
+Anonymous functions are clojures and they can access variables that are in scope
+when the function is defined, like in the example when we create the $add_ten$
+variable. The variable assigned inside a function doesn't affects the outer
+scope, so we check it on the last part of the execution.
+
+\subsubsection{Lists, tuples and immutability}
+
+Here are some operations with lists:
+
+\begin{verbatim}
+$ iex
+Erlang/OTP 18 [erts-7.1] [source] [smp:4:4] [async-threads:10] [kernel-poll:false]
+
+Interactive Elixir (1.1.1) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)> music = [:a, :b, :c] ++ [1, 2, 3]
+[:a, :b, :c, 1, 2, 3]
+iex(2)> music -- [:c, 3]
+[:a, :b, 1, 2]
+iex(3)> hd(music)
+:a
+iex(4)> tl(music)
+[:b, :c, 1, 2, 3]
+\end{verbatim}
+
+There are the concatenation operator **++** and the subtractor **--** operators
+that concatenates and subtract lists and there are the **hd** and **tl**
+functions that returns the head and the tail of the list.
+
+\begin{verbatim}
+$ iex
+Erlang/OTP 18 [erts-7.1] [source] [smp:4:4] [async-threads:10] [kernel-poll:false]
+
+Interactive Elixir (1.1.1) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)> tuple = {:ok, "hello"}
+{:ok, "hello"}
+iex(2)> put_elem(tuple, 1, "world")
+{:ok, "world"}
+iex(3)> elem(tuple, 0)
+:ok
+iex(4)> tuple_size(tuple)
+2
+iex(5)> elem(tuple, 1)
+"hello"
+\end{verbatim}
+
+We create a tuple using curly brackets. We can set a value for a determined
+tuple position, return a position and get a tuple size. Note in the last command
+that the second element of the variable tuple remains the same. The original
+tuple stored in the tuple variable was not modified because Elixir data types
+are immutable. By being immutable, Elixir code is easier to reason about as you
+never need to worry if a particular code is mutating your data structure in
+place.
+
+Lists in Elixir are linked. This means that each element in a list holds its
+value and points to the following element until the end of the list is reached.
+Accessing the length of a list is a linear operation: we need to traverse the
+whole list in order to figure out its size. Updating a list is fast as long as
+we are prepending elements.
+
+Tuples are stored contiguously in memory. This means getting the tuple size or
+accessing an element by index is fast. However, updating or adding elements to
+tuples is expensive because it requires copying the whole tuple in memory. Those
+performance characteristics dictate the usage of those data structures.
+
+\subsubsection{Pattern matching}
+
+Pattern matching allows to easily destructure data types such as tuples and
+lists. It is one of the foundations of recursion in Elixir. Here are some
+examples matching lists and tuples.
+
+\begin{verbatim}
+$ iex
+Erlang/OTP 18 [erts-7.1] [source] [smp:4:4] [async-threads:10] [kernel-poll:false]
+
+Interactive Elixir (1.1.1) - press Ctrl+C to exit (type h() ENTER for help)
+iex(1)> {a, b, c} = {:hello, "world", 42}
+{:hello, "world", 42}
+iex(2)> b
+"world"
+iex(3)> [a, b, c] = [1, 2, 3]
+[1, 2, 3]
+iex(4)> b
+2
+iex(5)> list = [1, 2, 3]
+[1, 2, 3]
+iex(6)> [0|list]
+[0, 1, 2, 3]
+iex(7)> [head | tail] = [1, 2, 3]
+[1, 2, 3]
+iex(8)> head
+1
+iex(9)> tail
+[2, 3]
+\end{verbatim}
+
+\subsubsection{Modules}
+
+Elixir groups several functions into modules. In order to create our own modules
+we use the **defmodule** macro. We use the **def** macro to define functions in
+that module.
+
+\begin{lstlisting}[label=esum,caption=Elixir Module example]
+defmodule Math do
+  def sum(a, b) do
+    a + b
+  end
+end
+
+Math.sum(1, 2)
+\end{lstlisting}
+
+Inside a module, we can define functions with **def** and private functions with
+**defp**. A function defined with **def** can be invoked from other modules
+while a private function can only be invoked locally.
+
+\begin{lstlisting}[label=econc,caption=Elixir pattern matching and function visibility]
+defmodule Concato do
+
+  def concat(a, b) do
+    do_concat(a, b)
+  end
+
+  defp do_concat([h|t], [a|b]) do
+    [h|t] ++ [a|b]
+  end
+
+  defp do_concat(a, b) do
+    a <> b
+  end
+
+end
+
+IO.puts Concato.concat("Merry", "Christmas") #=> MerryChristmas
+IO.inspect Concato.concat([:a, :b, :c], [1, 2, 3]) #=> [:a, :b, :c, 1, 2, 3]
+\end{lstlisting}
+
+The last example show the usage of a module with two private functions and a
+public function. The public function is used for interface with the module and
+it calls the possible 2 other functions using pattern matching. When the
+arguments are two lists, it calls a function that concatenate lists and when
+they are strings, the function that concatenates strings is called.
+
+\subsubsection{Recursion}
+
+Due to immutability, loops in Elixir (as in any functional programming language)
+are written differently from imperative languages. Functional languages rely on
+recursion: a function is called recursively until a condition is reached that
+stops the recursive action from continuing.
+
+\begin{lstlisting}[label=errrr,caption=Elixir recursion]
+defmodule Recursion do
+
+  def print_multiple_times(msg, n) when n <= 1 do
+    IO.puts msg
+  end
+
+  def print_multiple_times(msg, n) do
+    IO.puts msg
+    print_multiple_times(msg, n - 1)
+  end
+
+end
+
+Recursion.print_multiple_times("Gol!", 7)
+\end{lstlisting}
+
+Let's use recursion to make some math operations. The example above has three
+**public** functions: the first one return the sum of all numbers in the list
+and the second return the list with all elements multiplied by two.
+
+\begin{lstlisting}[label=elists,caption=Elixir recursion with lists]
+defmodule Math do
+
+  def sum_list([h|t]) do
+    sum_list([h|t], 0)
+  end
+
+  defp sum_list([head|tail], accumulator) do
+    sum_list(tail, head + accumulator)
+  end
+
+  defp sum_list([], accumulator) do
+    accumulator
+  end
+
+  def double_each([head|tail]) do
+    [head * 2|double_each(tail)]
+  end
+
+  def double_each([]) do
+    []
+  end
+
+end
+
+IO.puts Math.sum_list([2,3,5]) #=> 10
+IO.inspect Math.double_each([2,3,5]) #=> [4, 6, 10]
+\end{lstlisting}
+
+Elixir has a Enum \cite{5_15} module that
+provides a set of algorithms that enumerate over collections. This module has a
+**reduce** and a **map** functions that we'll use to rewrite our last example:
+
+\begin{lstlisting}[label=eenum,caption=Elixir lists with Enum]
+defmodule Mathenum do
+
+  def sum_list([h|t]) do
+    Enum.reduce([h|t], 0, fn(x, acc) -> x + acc end)
+  end
+
+  def double_each([h|t]) do
+    Enum.map([h|t], fn(x) -> x * 2 end)
+  end
+
+end
+
+IO.puts Mathenum.sum_list([2,3,5]) #=> 10
+IO.inspect Mathenum.double_each([2,3,5]) #=> [4, 6, 10]
+\end{lstlisting}
