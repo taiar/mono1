@@ -1,0 +1,310 @@
+Rust was made to be a system's programming language. There are lots of ways to
+integrate Rust programs into computer systems and other programming languages.
+In this usage example we'll see how to write a system shared library in Rust and
+use it from other programs in other languages.
+
+\subsection{Our problem}
+
+This is the Monte Carlo algorithm for a Pi approximation 
+ \cite{8_1} written in Python:
+
+\begin{lstlisting}[label=pytthth,caption=Python Monte Carlo algorithm]
+import random
+import sys
+
+def montecarlopi(n):
+    m = 0.
+    n = int(n)
+    for i in range(0, n):
+        x, y = random.random(), random.random()
+        if ((x ** 2) + (y ** 2)) < 1:
+            m = m + 1
+    return 4 * m / n
+
+print montecarlopi(sys.argv[1])
+\end{lstlisting}
+
+It computes a approximation for the Pi value, based in the given parameter. When
+bigger is the parameter, better is the approximation value. Let's measure some
+executions:
+
+\begin{verbatim}
+$ time python pi.py 10
+3.6
+
+real    0m0.016s
+user    0m0.015s
+sys 0m0.000s
+\end{verbatim}
+
+The programs is fast and the value is a very bad approximation. Let's increase
+the precision:
+
+\begin{verbatim}
+$ time python pi.py 100000
+3.14184
+
+real    0m0.067s
+user    0m0.058s
+sys 0m0.008s
+
+$ time python pi.py 1000000
+3.140332
+
+real    0m0.533s
+user    0m0.504s
+sys 0m0.028s
+
+$ time python pi.py 10000000
+3.1423776
+
+real    0m5.192s
+user    0m4.912s
+sys 0m0.276s
+
+$ time python pi.py 100000000
+3.14162228
+
+real    3m55.038s
+user    0m52.011s
+sys 0m6.175s
+\end{verbatim}
+
+The program became very slow very fast. It's a common approach to implement the
+slow algorithms of the systems in platforms that runs fast and integrate into
+the real workflow by calling this solution in other platform. So, let's take a
+look on the implementation of this algorithm in Rust:
+
+\begin{lstlisting}[label=rmcalg,caption=Rust Monte Carlo algorithm]
+extern crate rand;
+
+use std::env;
+use std::str::FromStr;
+use rand::distributions::{IndependentSample, Range};
+
+fn montecarlopi(n: u32) -> f32 {
+    let between = Range::new(-1f32, 1.);
+    let mut rng = rand::thread_rng();
+
+    let total = n;
+    let mut in_circle = 0;
+
+    for _ in 0..total {
+        let a = between.ind_sample(&mut rng);
+        let b = between.ind_sample(&mut rng);
+        if a*a + b*b <= 1. {
+            in_circle += 1;
+        }
+    }
+    4. * (in_circle as f32) / (total as f32)
+}
+
+fn main() {
+   let args: Vec<String> = env::args().collect();
+   if args.len() > 1 {
+     println!("{}", montecarlopi(FromStr::from_str(&args[1]).unwrap()));
+   }
+}
+\end{lstlisting}
+
+It Is the same algorithm at all. Let's measure the execution of this program:
+
+\begin{verbatim}
+$ time ./release/point 100000000
+3.1413338
+
+real    0m5.323s
+user    0m1.911s
+sys 0m3.410s
+
+time ./release/point 1000000000
+3.1415544
+
+real    0m53.193s
+user    0m19.046s
+sys 0m34.107s
+\end{verbatim}
+
+Awesome! The execution time is much better (even with more precision). Now we
+should make it callable from Python and other platforms.
+
+\subsection{A Rust library}
+
+Let's start creating a new project with Cargo:
+
+\begin{verbatim}
+$ cargo new montepy
+$ cd montepy
+\end{verbatim}
+
+Now, edit the ./src/lib.rs file Cargo creates inserting our previous code with
+some changes I'll explain later:
+
+\begin{lstlisting}[label=rlllabrar,caption=Rust library code]
+extern crate rand;
+
+use std::env;
+use std::str::FromStr;
+use rand::distributions::{IndependentSample, Range};
+
+#[no_mangle]
+pub extern fn montecarlopi(n: u32) -> f32 {
+    let between = Range::new(-1f32, 1.);
+    let mut rng = rand::thread_rng();
+
+    let total = n;
+    let mut in_circle = 0;
+
+    for _ in 0..total {
+        let a = between.ind_sample(&mut rng);
+        let b = between.ind_sample(&mut rng);
+        if a*a + b*b <= 1. {
+            in_circle += 1;
+        }
+    }
+    4. * (in_circle as f32) / (total as f32)
+}
+\end{lstlisting}
+
+The not so odd modification is the $pub extern$ annotations in the font of
+the $montecarlopi$ function. The $pub$ means that this function should be
+callable from outside of this module, and the $extern$ says that it should be
+able to be called from C. Also the $main$ method was removed because we don't
+want this program to execute itself. The other modification was the $\#[no_mangle]$ annotation over the method. When you create a Rust library, it
+changes the name of the function in the compiled output. This attribute turns
+that behavior off  \cite{8_2}.
+
+Also we had to change the $Cargo.toml$ file. It will look like this:
+
+\begin{verbatim}
+[package]
+name = "montepy"
+version = "0.1.0"
+authors = ["André Taiar <taiar@dcc.ufmg.br>"]
+
+[dependencies]
+rand = "*"
+
+[lib]
+name = "montepi"
+crate-type = ["dylib"]
+\end{verbatim}
+
+The additions here where the $dependencies$ clause, specifying that rand library
+is our dependence (Cargo will download and install it for us), the $lib$ clause,
+specifying we are building a library and we want to compile our library into a
+standard dynamic library  \cite{8_3}. Let's build
+the library:
+
+\begin{verbatim}
+$ cargo build --release
+    Updating registry `https://github.com/rust-lang/crates.io-index`
+   Compiling winapi v0.2.5
+   Compiling libc v0.2.2
+   Compiling winapi-build v0.1.1
+   Compiling advapi32-sys v0.1.2
+   Compiling rand v0.3.12
+   Compiling montepy v0.1.0 (file:///home/taiar/dev/mono1/rust/montepy)
+\end{verbatim}
+
+Now in the $./target/release/$ directory there is a file called
+$libmontepi.so$ which is our compiled dynamic library. Now, we can create a
+python program that uses this library and compute our result very fast. Here is
+the code:
+
+\begin{lstlisting}[label=perrr,caption=Python wrong code for calling the library]
+from ctypes import cdll
+
+lib = cdll.LoadLibrary("target/release/libmontepi.so")
+print lib.montecarlopi(100000000)
+
+print("done!")
+\end{lstlisting}
+
+The execution result:
+
+\begin{verbatim}
+$ time python pi.py 
+22862944
+done!
+
+real    0m5.412s
+user    0m2.061s
+sys 0m3.343s
+\end{verbatim}
+
+The program runs really fast but wait, there is a problem. The aproximation
+result is totally wrong.
+
+The problem is that the integers and floats we use in our implementation of the
+Rust algorithm has different forms from the types of Python. To get around this,
+we must convert our numbers for types that are compatible with our system. Here
+is our new Python code:
+
+\begin{lstlisting}[label=pytonright,caption=Python right code]
+from ctypes import cdll
+import ctypes
+
+lib = cdll.LoadLibrary("target/release/libmontepi.so")
+
+montecarlopi = lib.montecarlopi
+montecarlopi.restype = ctypes.c_float
+print montecarlopi(100000000)
+
+print("done!")
+\end{lstlisting}
+
+\begin{verbatim}
+$ time python pi.py 
+3.14137887955
+done!
+
+real  0m5.400s
+user  0m1.952s
+sys 0m3.447s
+\end{verbatim}
+
+and in Node.js (with the ffi package  \cite{8_4}):
+
+\begin{lstlisting}[label=njs,caption=Node calling our Rust library]
+var ffi = require('ffi');
+
+var pipi = ffi.Library('./target/release/libmontepi.so', {
+    'montecarlopi': ['float', ['int']]
+});
+
+console.log(pipi.montecarlopi(100000000));
+\end{lstlisting}
+
+\begin{verbatim}
+$ time nodejs pi.js 
+3.1415293216705322
+
+real  0m5.466s
+user  0m2.038s
+sys 0m3.420s
+\end{verbatim}
+
+and in C (the $libmontepi.so$ file must be available in your system):
+
+\begin{lstlisting}[label=ccorl,caption=C calling our Rust library]
+#include <stdint.h>
+#include <stdio.h>
+
+float montecarlopi(const int precision);
+
+int main() {
+  printf("%f\n", montecarlopi(100000000));
+  return 0;
+}
+\end{lstlisting}
+
+\begin{verbatim}
+$ gcc -o pi pi.c -lmontepi
+$ time ./pi 
+3.141783
+
+real  0m5.367s
+user  0m1.925s
+sys 0m3.441s
+\end{verbatim}

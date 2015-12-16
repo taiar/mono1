@@ -1,0 +1,232 @@
+\subsection{How did it appear?}
+
+Rust  \cite{7_1} is a general-purpose,
+multi-paradigm, compiled, systems programming
+language. Nowadays, the Rust project is maintained and developed by Mozilla  \cite{7_2}
+Research but it starts as a personal project by Mozilla employee Graydon Hoare
+ \cite{7_3}  \cite{7_4}.
+
+Graydon starts working on Rust in 2006. He was already a engineer at Mozilla
+working on compilers and tools for other languages. He started sketching Rust
+thinking in a lot of obvious good ideas, known and loved in other languages,
+that haven't made it into widely-used systems languages, or are deployed in
+languages that have very poor (unsafe, concurrency-hostile) memory models.
+
+After working long time as a hobby project, he decided to show one such
+prototype he'd been working on his spare time to his manager. Mozilla took an
+interest and set up a team to work on this language as a component of
+longer-term project to rebuild their browser stack around safer, more
+concurrent, easier technologies than C++. That larger project is called \"servo\".
+Mozilla is funding Rust development because of that.
+
+Mozilla began sponsoring the project in 2009 and announced it in 2010. The
+first Rust compiler, that was written in OCaml 
+ \cite{7_5}, was dropped and rewritten in a
+Rust version that successfully compiled itself in 2011. It is called $rustc$
+and uses LLVM  \cite{7_6} as it's back end. The
+version 1.0  \cite{7_7} was released in 15 May
+2015.
+
+\subsection{Why was it designed and implemented?}
+
+System's programming languages became widely used on the last 50 years since
+people started using high-level languages to write operating systems.
+Nevertheless, there were always two problems constantly present in this niche:
+
+\begin{itemize}
+    \item It's difficult to write secure code (due to the way that languages like C and
+          C++ manages memory);
+    \item It's hard (but essential) to write multi-threaded concurrent code due to the
+          low support the languages of this niche offers to programmers to deal
+          with the bugs that writing parallel programs would offer  \cite{7_8}.
+\end{itemize}
+
+These are the problems that Rust was made to address. As it's own creator says:
+
+\begin{quotation}
+Our target audience is frustrated C++ developers. 
+\end{quotation}
+
+on which he includes himself. The performance of safe code (which is one of
+things that Rust aims) is expected to be slower than C++, however, the Rust
+program's performance is comparable to C++ code that manually implements safer
+operations  \cite{7_9}. 
+
+Rust is a compiled, multi-paradigm programming language. It supports
+pure-functional, actor-based concurrency, imperative-procedural and
+object-oriented programming styles.
+
+\subsection{How can we use it, e.g., install and run?}
+
+\subsubsection{Linux and Mac OS}
+
+Rust has a simple installation proccess on Linux and Mac OS systems. Run the
+following line in the command terminal:
+
+\begin{verbatim}
+$ curl -sSf https://static.rust-lang.org/rustup.sh | sh
+\end{verbatim}
+
+It will download the files, ask for $sudo$ passwords and setup everything
+automatically.
+
+\subsubsection{Windows}
+
+There are binaries versions with installers for Windows users at the download
+page  \cite{7_10}.
+
+\subsubsection{Testing the installation}
+
+Rust default toolset ships with a build tool called $cargo$
+ \cite{7_11}. It is a tool to help manage the
+Rust projects. Cargo manages three things: building your code, downloading the
+dependencies your code needs, and building those dependencies.
+
+To start a new project with cargo, run the command:
+
+\begin{verbatim}
+$ cargo new hello --bin
+\end{verbatim}
+
+It will generate the dicrectory called $hello$ with some files on it. On the
+directory root it creates a $Cargo.toml$ file with some basic information about
+the project and a $src$ directory with a $main.rs$ file on it. This is the
+content of the main file:
+
+\begin{lstlisting}[label=rhw,caption=Rust Hello World]
+fn main() {
+    println!("Hello, world!");
+}
+\end{lstlisting}
+
+To compile and run the project, in the project's root directory, run the
+commands:
+
+\begin{verbatim}
+$ cargo build
+   Compiling hello v0.1.0 (file:///home/taiar/dev/mono1/rust/hello)
+$ cargo run
+     Running `target/debug/hello`
+Hello, world!
+\end{verbatim}
+
+and the hello message just show up. The binary file is located at
+$target/debug/hello$ and can be executed directly from the command line
+without the cargo tool too.
+
+\begin{verbatim}
+$ ./target/debug/hello
+Hello, world!
+\end{verbatim}
+
+\subsection{Simple programs}
+
+\subsubsection{Primitive types and mutability}
+
+Rust provides access to a wide variety of primitives:
+
+\begin{itemize}
+    \item signed integers: $i8$, $i16$, $i32$, $i64$ and $isize$ (pointer size);
+    \item unsigned integers: $u8$, $u16$, $u32$, $u64$ and $usize$ (pointer size);
+    \item floating point: $f32$, $f64$;
+    \item char Unicode scalar values like $'a'$, $\alpha$ and $\infty$ (4 bytes each);
+    \item bool either $true$ or $false$;
+    \item arrays like $[1, 2, 3]$;
+    \item tuples like $(1, true)$.
+\end{itemize}
+
+Here are some usage:
+
+\begin{lstlisting}[label=rst,caption=Rust types usage]
+fn main() {
+    // Variables can be type annotated.
+    let logical: bool = true;
+
+    let a_float: f64 = 1.0;  // Regular annotation
+    let an_integer   = 5i32; // Suffix annotation
+
+    // Or a default will be used.
+    let default_float   = 3.0; // `f64`
+    let default_integer = 7;   // `i32`
+
+    let mut mutable = 12; // Mutable `i32`.
+}
+\end{lstlisting}
+
+Variables in Rust are immutable by default. The program:
+
+\begin{lstlisting}[label=rmtt,caption=Rust mutability mistake]
+fn main() {
+    let truth = true;
+    truth = false;
+}
+\end{lstlisting}
+
+will result in a compile error:
+
+\begin{verbatim}
+error: re-assignment of immutable variable `truth` [E0384]
+\end{verbatim}
+
+To be mutable, the variables must explicitly be annotated with $mut$:
+
+\begin{lstlisting}[label=rmutmtu,caption=Rust mutability]
+fn main() {
+    let mut lie = true;
+    lie = false;
+}
+\end{lstlisting}
+
+The version I'm using is Rust 1.5.0.
+
+\subsubsection{Object oriented programming}
+
+Rust uses $structs$ to create more complex data types \cite{7_12} \cite{7_13}.
+For example, if we want to use two numbers to represent a point in the space:
+
+\begin{lstlisting}[label=rstr,caption=Rust structs]
+struct Point {
+    x: f32,
+    y: f32,
+}
+
+fn main() {
+    let mut point = Point { x: 0, y: 0 };
+
+    point.x = 3;
+    point.y = 4;
+    
+    println!("The point is at ({}, {})", point.x, point.y);
+}
+\end{lstlisting}
+
+Rust also has the concept of Traits. A trait is a language feature that tells
+the Rust compiler about functionality a type must provide. If we want a method
+that tells the point distance to the origin:
+
+\begin{lstlisting}[label=rtrait,caption=Rust traits]
+use std::f32;
+
+struct Point {
+    x: f32,
+    y: f32,
+}
+
+impl Point {
+    fn distanceFromO(&self) -> f32 {
+        f32::sqrt(self.x * self.x + self.y * self.y)
+    }
+}
+
+fn main() {
+    let point = Point { x: 3f32, y: 4f32 }; 
+    println!("The distance from the origin is ({})", point.distanceFromO(), );
+}
+\end{lstlisting}
+
+The Trait implements the $distanceFromO$ method for the $Point$ struct.
+
+Visibility in Rust is done around modules. Rust provides a powerful module 
+system that can be used to hierarchically split code in logical units (modules),
+and manage visibility (public/private) between them. A module is a collection of
+items: functions, structs, traits, impl blocks, and even other modules \cite{7_14}.
